@@ -4,17 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".ImageDetailActivity"
     android:orientation="vertical">
 
-
     <include layout="@layout/gallery_main_menu"
-        android:id="activity_main_menu"/>
-
-    <android.support.v7.widget.RecyclerView
+        android:id="@+id/detail_top_bar"/>
+    <ImageView
+        android:id="@+id/detail_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:src="@drawable/ic_launcher_background"
+        android:scaleType="fitCenter"
+        />
+    <include layout="@layout/gallery_main_menu"
+        android:id="@+id/detail_bottom_bar"/>
 
 </LinearLayout>
