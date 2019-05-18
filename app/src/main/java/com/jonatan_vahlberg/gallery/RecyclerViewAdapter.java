@@ -25,7 +25,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     //constructor
     public RecyclerViewAdapter(Context context,ArrayList<ImageObject> list,boolean gridMode){
-        //Get realm Object from realm
         mContext = context;
         mList = list;
         mGridMode = gridMode;
@@ -71,7 +70,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return 0;
+        return mList.size();
     }
 
     @Override

@@ -4,6 +4,7 @@ public class ImageObject {
 
     private String title;
     private String dateCreated;
+    private long ID;
 
 
     public String getTitle() {
@@ -19,6 +20,11 @@ public class ImageObject {
     }
 
     public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public ImageObject(String title, String dateCreated){
+        this.title = title;
         this.dateCreated = dateCreated;
     }
 
