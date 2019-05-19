@@ -5,6 +5,7 @@ public class ImageObject {
     private String title;
     private String dateCreated;
     private long ID;
+    private long parentFolder;
 
 
     public String getTitle() {

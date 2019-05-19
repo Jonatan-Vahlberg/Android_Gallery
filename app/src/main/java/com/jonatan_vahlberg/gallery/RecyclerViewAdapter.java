@@ -3,6 +3,8 @@ package com.jonatan_vahlberg.gallery;
 import android.content.Context;
 import android.content.Intent;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -52,11 +54,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         final int INDEX = i;
         ImageObject imageObject = mList.get(i);
         if(viewHolder instanceof GridViewHolder){
-            ((GridViewHolder) viewHolder).title.setText(imageObject.getTitle());
+            ((GridViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
+            ((GridViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
 
         }
         else if(viewHolder instanceof  ListViewHolder){
             ((ListViewHolder) viewHolder).title.setText(imageObject.getTitle());
+            ((ListViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +70,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 intent.putExtra("View Detail",mList.get(INDEX).getTitle());
             }
         });
+    }
+
+    private String truncateTitle(String title) {
+        if(title.length() > 15){
+            return title.substring(0,9)+"...";
+        }
+        return title;
     }
 
     @Override
