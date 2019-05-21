@@ -21,14 +21,12 @@ import java.util.ArrayList;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
-    private ArrayList<ImageObject> mList;
     private Boolean mGridMode;
 
 
     //constructor
-    public RecyclerViewAdapter(Context context,ArrayList<ImageObject> list,boolean gridMode){
+    public RecyclerViewAdapter(Context context,boolean gridMode){
         mContext = context;
-        mList = list;
         mGridMode = gridMode;
     }
 
@@ -52,22 +50,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         final int INDEX = i;
-        ImageObject imageObject = mList.get(i);
+        ImageObject imageObject = Singleton.shared.getFromList(i);
         if(viewHolder instanceof GridViewHolder){
-            ((GridViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
+            ((GridViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
             ((GridViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
 
         }
         else if(viewHolder instanceof  ListViewHolder){
             ((ListViewHolder) viewHolder).title.setText(imageObject.getTitle());
-            ((ListViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
+            ((ListViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
+            //((ListViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(),ImageDetailActivity.class);
-                intent.putExtra("View Detail",mList.get(INDEX).getTitle());
+                intent.putExtra("View Detail",Singleton.shared.getFromList(INDEX).getTitle());
             }
         });
     }
@@ -81,7 +80,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return mList.size();
+        return Singleton.shared.getListSize();
     }
 
     @Override

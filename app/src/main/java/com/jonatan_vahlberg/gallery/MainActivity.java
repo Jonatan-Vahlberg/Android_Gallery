@@ -106,6 +106,10 @@ public class MainActivity extends AppCompatActivity {
         if(Build.VERSION.SDK_INT >= 23){
             requestPermissions(new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},CAMERA_PERMISSION_CODE);
         }
+        for(int i = 0; i < Singleton.shared.getListSize(); i++){
+            ImageObject imageObject = Singleton.shared.getFromList(i);
+            imageObject.setImageScaledDown(Singleton.shared.scaleDownBitmap(imageObject.getImageScaledDown(),100,this));
+        }
 
         setupLayout();
 
@@ -167,13 +171,13 @@ public class MainActivity extends AppCompatActivity {
         Display display = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
         int cols = (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)? 3:4;
-        adapter = new RecyclerViewAdapter(this,mList,gridMode);
+        adapter = new RecyclerViewAdapter(this,gridMode);
         recyclerView.setAdapter(adapter);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this,cols,GridLayoutManager.VERTICAL,false));
     }
     private void setupRecyclerViewList() {
-        adapter = new RecyclerViewAdapter(this,mList,gridMode);
+        adapter = new RecyclerViewAdapter(this,gridMode);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -223,14 +227,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if( resultCode == RESULT_OK){
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher_background);
+            Uri imageUri = data.getData();
+            try{
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),imageUri);
+                bitmap = Singleton.shared.scaleDownBitmap(bitmap,100,this);
+            }catch (Exception e){
+                Log.e("Error 4", "onActivityResult: ",e );
+            }
+            
             if(requestCode == CAPTURE_IMAGE_REQUEST){
 
+                Singleton.shared.addToList(new ImageObject(currentFileName,"",bitmap));
             }
             else if(requestCode == IMAGE_FROM_FOLDER_REQUSET){
+                Singleton.shared.addToList(new ImageObject(currentFileName,"",bitmap));
 
             }
-            readInFileNames();
-            adapter.notifyDataSetChanged();
         }
 
     }
