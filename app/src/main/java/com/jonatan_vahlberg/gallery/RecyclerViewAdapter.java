@@ -16,9 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Runnable {
 
     private Context mContext;
     private Boolean mGridMode;
@@ -52,21 +55,38 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         final int INDEX = i;
         ImageObject imageObject = Singleton.shared.getFromList(i);
         if(viewHolder instanceof GridViewHolder){
-            ((GridViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
-            ((GridViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
+
+//            Glide.with(mContext)
+//                    .load(new File(Globals.IMAGE_DIRECTORY_PATH+imageObject.getTitle()))
+//                    .into(((GridViewHolder) viewHolder).image);
+            Glide.with(mContext)
+                    .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
+                    .fitCenter()
+                    .override(200,200)
+                    .into(((GridViewHolder) viewHolder).image);
+
+            ((GridViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
+
+            //((GridViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
+            //((GridViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
 
         }
         else if(viewHolder instanceof  ListViewHolder){
-            ((ListViewHolder) viewHolder).title.setText(imageObject.getTitle());
-            ((ListViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
-            //((ListViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
+            ((ListViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
+            Glide.with(mContext)
+                    .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
+                    .fitCenter()
+                    .override(200,200)
+                    .into(((ListViewHolder) viewHolder).image);
+
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(),ImageDetailActivity.class);
-                intent.putExtra("View Detail",Singleton.shared.getFromList(INDEX).getTitle());
+                intent.putExtra(Globals.INDEX_INTENT,INDEX);
+                mContext.startActivity(intent);
             }
         });
     }
@@ -87,6 +107,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public int getItemViewType(int position) {
 
         return mGridMode? 0:1;
+    }
+
+    @Override
+    public void run() {
+
     }
 
     //Viewholder used for Adapter Creation
