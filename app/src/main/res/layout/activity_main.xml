@@ -9,9 +9,10 @@
 
 
     <include layout="@layout/gallery_main_menu"
-        android:id="activity_main_menu"/>
+        android:id="@+id/activity_main_menu"/>
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/main_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
