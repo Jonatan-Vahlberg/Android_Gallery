@@ -31,8 +31,18 @@ import android.widget.LinearLayout;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -161,7 +171,28 @@ public class MainActivity extends AppCompatActivity {
         }
         recyclerView.getLayoutManager().onRestoreInstanceState(listState);
 
+        folderBtn = topMenu.findViewById(R.id.menu_folder_btn);
+        folderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getImage();
+            }
+        });
+
     }
+
+    private void getImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        //File photoFile;
+        //photoFile = createPhotoFile();
+        //String pathToFile = photoFile.getAbsolutePath();
+        //if(photoFile != null){
+            //Uri photoUri = FileProvider.getUriForFile(MainActivity.this,"com.jonatan_vahlberg.gallery.fileprovider", photoFile);
+            //intent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
+            startActivityForResult(intent,IMAGE_FROM_FOLDER_REQUSET);
+        //}
+    }
+
 
 
     private void setupRecyclerViewGrid() {
@@ -199,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     String pathToFile = photoFile.getAbsolutePath();
                     Uri photoUri = FileProvider.getUriForFile(MainActivity.this,"com.jonatan_vahlberg.gallery.fileprovider", photoFile);
                     captureNewImageIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
+
                     startActivityForResult(captureNewImageIntent,CAPTURE_IMAGE_REQUEST);
                 }
             }
@@ -220,6 +252,16 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    public static void copyStream(InputStream input, OutputStream output)
+            throws IOException {
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -229,7 +271,23 @@ public class MainActivity extends AppCompatActivity {
                 Singleton.shared.addToList(new ImageObject(currentFileName,""));
             }
             else if(requestCode == IMAGE_FROM_FOLDER_REQUSET){
-                Singleton.shared.addToList(new ImageObject(currentFileName,""));
+                File intputFile = new File(data.getData().toString());
+                File outputFile = new File(Globals.IMAGE_DIRECTORY_PATH+"/"+intputFile.getName()+".jpg");
+                try{
+                    InputStream inputStream = getContentResolver()
+                            .openInputStream(data.getData());
+                    FileOutputStream fileOutputStream = new FileOutputStream(
+                            outputFile);
+                    copyStream(inputStream, fileOutputStream);
+                    fileOutputStream.close();
+                    inputStream.close();
+
+                }catch (Exception e){
+                }
+                if(!(outputFile == null)){
+                    Singleton.shared.addToList(new ImageObject(currentFileName,""));
+
+                }
             }
             Singleton.shared.load(this);
             recyclerView.getAdapter().notifyDataSetChanged();

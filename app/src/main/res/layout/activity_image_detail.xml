@@ -24,6 +24,7 @@
         android:layout_weight="0.2"
         android:textSize="20sp"
         android:text="Hello"
+        android:padding="20dp"
         />
     <include layout="@layout/gallery_main_menu"
         android:id="@+id/detail_bottom_bar"/>

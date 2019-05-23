@@ -115,6 +115,7 @@ public class ImageDetailActivity extends AppCompatActivity {
                         procentile = xCurrent / deltaAbs;
                     }
                     else{
+                        //Take the procentile and reverse it to get correct value.
                         deltaAbs = Math.abs((xCurrent - x1));
                         procentile = 1f -(deltaAbs / metrics.widthPixels);
 
