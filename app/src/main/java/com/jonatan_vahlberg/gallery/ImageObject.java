@@ -7,8 +7,7 @@ public class ImageObject {
     private String title;
     private String dateCreated;
     private Bitmap imageScaledDown;
-    private long ID;
-    private long parentFolder;
+    private long id;
 
 
     public String getTitle() {
@@ -19,30 +18,38 @@ public class ImageObject {
         this.title = title;
     }
 
-    public String getDateCreated() {
-        return dateCreated;
+//    public String getDateCreated() {
+//        return dateCreated;
+//    }
+//
+//    public void setDateCreated(String dateCreated) {
+//        this.dateCreated = dateCreated;
+//    }
+//
+//    public Bitmap getImageScaledDown() {
+//        return imageScaledDown;
+//    }
+//
+//    public void setImageScaledDown(Bitmap imageScaledDown) {
+//        this.imageScaledDown = imageScaledDown;
+//    }
+
+    public long getId() {
+        return id;
     }
 
-    public void setDateCreated(String dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    public Bitmap getImageScaledDown() {
-        return imageScaledDown;
-    }
-
-    public void setImageScaledDown(Bitmap imageScaledDown) {
-        this.imageScaledDown = imageScaledDown;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public ImageObject(String title, String dateCreated){
         this.title = title;
         this.dateCreated = dateCreated;
     }
-    public ImageObject(String title, String dateCreated,Bitmap image){
+    public ImageObject(String title,long id){
         this.title = title;
-        this.dateCreated = dateCreated;
-        this.imageScaledDown = image;
+        this.id = id;
+
     }
 
 

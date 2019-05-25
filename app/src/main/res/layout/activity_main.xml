@@ -7,9 +7,12 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
-
+    <include layout="@layout/gallery_deletion_menu"
+        android:id="@+id/deletion_menu"
+        android:visibility="gone"/>
     <include layout="@layout/gallery_main_menu"
-        android:id="@+id/activity_main_menu"/>
+        android:id="@+id/activity_main_menu"
+        android:visibility="visible"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/main_recycler_view"

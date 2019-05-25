@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -50,9 +51,9 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private LinearLayout topMenu;
-    ImageButton cameraBtn, folderBtn, modeBtn;
+    private RecyclerViewAdapter adapter;
+    private LinearLayout topMenu, deleteMenu;
+    ImageButton cameraBtn, folderBtn, modeBtn, deleteBtn, returnBtn;
     private ArrayList<ImageObject> mList = new ArrayList<>();
 
     //Static Finals for Image handling
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     //private int currentRecyclePosition = 0;
     private boolean gridMode = true;
     private String currentFileName;
+
+
 
     @Override
     protected void onStart() {
@@ -138,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupLayout(){
         topMenu = findViewById(R.id.activity_main_menu);
+        deleteMenu = findViewById(R.id.deletion_menu);
         modeBtn = topMenu.findViewById(R.id.menu_style_btn);
         modeBtn.setImageResource((gridMode) ? R.drawable.menu : R.drawable.list);
         modeBtn.setOnClickListener(new View.OnClickListener() {
@@ -179,6 +183,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        deleteBtn = deleteMenu.findViewById(R.id.menu_delete_delete_btn);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Singleton.shared.deleteItems();
+                recyclerView.getAdapter().notifyDataSetChanged();
+                Singleton.shared.toggleDeletionMode(false);
+                renderMenus();
+            }
+        });
+        returnBtn = deleteMenu.findViewById(R.id.menu_delete_return_btn);
+        returnBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Singleton.shared.toggleDeletionMode(false);
+                renderMenus();
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
     }
 
     private void getImage() {
@@ -193,19 +217,54 @@ public class MainActivity extends AppCompatActivity {
         //}
     }
 
+    public void renderMenus() {
+            if(Singleton.shared.DELETION_MODE){
+                topMenu.setVisibility(View.GONE);
+                deleteMenu.setVisibility(View.VISIBLE);
+            }
+            else {
+                topMenu.setVisibility(View.VISIBLE);
+                deleteMenu.setVisibility(View.GONE);
+            }
+            renderData();
+    }
+    public void  renderData(){
+        TextView itemsDeleteText = deleteMenu.findViewById(R.id.menu_delete_text);
+        itemsDeleteText.setText(Singleton.shared.getDeleteListSize()+" items selected");
+    }
 
 
     private void setupRecyclerViewGrid() {
         Display display = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
         int cols = (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)? 3:4;
-        adapter = new RecyclerViewAdapter(this,gridMode);
+        adapter = new RecyclerViewAdapter(this, gridMode) {
+            @Override
+            public void renderMenus() {
+                MainActivity.this.renderMenus();
+            }
+
+            @Override
+            public void renderData() {
+                MainActivity.this.renderData();
+            }
+        };
         recyclerView.setAdapter(adapter);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this,cols,GridLayoutManager.VERTICAL,false));
     }
     private void setupRecyclerViewList() {
-        adapter = new RecyclerViewAdapter(this,gridMode);
+        adapter = new RecyclerViewAdapter(this, gridMode) {
+            @Override
+            public void renderMenus() {
+                MainActivity.this.renderMenus();
+            }
+
+            @Override
+            public void renderData() {
+                MainActivity.this.renderData();
+            }
+        };
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

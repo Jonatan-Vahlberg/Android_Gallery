@@ -3,8 +3,10 @@ package com.jonatan_vahlberg.gallery;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -21,7 +24,7 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Runnable {
+public abstract class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Runnable {
 
     private Context mContext;
     private Boolean mGridMode;
@@ -53,12 +56,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         final int INDEX = i;
+        final RecyclerView.ViewHolder finalViewHolder = viewHolder;
         ImageObject imageObject = Singleton.shared.getFromList(i);
         if(viewHolder instanceof GridViewHolder){
 
-//            Glide.with(mContext)
-//                    .load(new File(Globals.IMAGE_DIRECTORY_PATH+imageObject.getTitle()))
-//                    .into(((GridViewHolder) viewHolder).image);
             Glide.with(mContext)
                     .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
                     .fitCenter()
@@ -66,29 +67,62 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     .into(((GridViewHolder) viewHolder).image);
 
             ((GridViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
-
-            //((GridViewHolder) viewHolder).image.setImageBitmap(imageObject.getImageScaledDown());
-            //((GridViewHolder) viewHolder).image.setImageBitmap(BitmapFactory.decodeFile(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle()));
-
+            toggleItemInDeletedLayoutState(Singleton.shared.itemDeleteState(i),viewHolder.itemView,true);
         }
         else if(viewHolder instanceof  ListViewHolder){
-            ((ListViewHolder) viewHolder).title.setText(truncateTitle(imageObject.getTitle()));
+            ((ListViewHolder) viewHolder).title.setText((imageObject.getTitle()));
             Glide.with(mContext)
                     .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
                     .fitCenter()
                     .override(200,200)
                     .into(((ListViewHolder) viewHolder).image);
+            toggleItemInDeletedLayoutState(Singleton.shared.itemDeleteState(i),viewHolder.itemView,false);
 
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(),ImageDetailActivity.class);
-                intent.putExtra(Globals.INDEX_INTENT,INDEX);
-                mContext.startActivity(intent);
+                if(Singleton.shared.DELETION_MODE){
+                    boolean grid = (finalViewHolder instanceof GridViewHolder);
+                    ImageObject object = Singleton.shared.getFromList(INDEX);
+                    if(!Singleton.shared.itemDeleteState(INDEX)){
+                        Singleton.shared.addToDeleteList(object.getId());
+                        toggleItemInDeletedLayoutState(Singleton.shared.itemDeleteState(INDEX),v,grid);
+                    }
+                    else{
+                        Singleton.shared.removeFromDeleteList(object.getId());
+                        toggleItemInDeletedLayoutState(Singleton.shared.itemDeleteState(INDEX),v,grid);
+                    }
+                    renderData();
+
+                }
+                else{
+                    Intent intent = new Intent(v.getContext(),ImageDetailActivity.class);
+                    intent.putExtra(Globals.INDEX_INTENT,INDEX);
+                    mContext.startActivity(intent);
+                }
             }
         });
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Singleton.shared.toggleDeletionMode(!Singleton.shared.DELETION_MODE);
+                renderMenus();
+                notifyDataSetChanged();
+                return true;
+            }
+        });
+    }
+
+
+
+    private void toggleItemInDeletedLayoutState(boolean toBeDeleted,View itemView, boolean grid){
+        int background = (toBeDeleted)? Color.parseColor("#369DCF"): Color.parseColor("#ffffff");
+        RelativeLayout background_layout;
+        if(grid) background_layout = itemView.findViewById(R.id.grid_background);
+        else background_layout = itemView.findViewById(R.id.list_background);
+        background_layout.setBackgroundColor(background);
     }
 
     private String truncateTitle(String title) {
@@ -118,13 +152,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public class ListViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView title;
-        LinearLayout layout;
+        CardView layout;
+        RelativeLayout background;
 
         public ListViewHolder(View itemView){
             super(itemView);
             image =  itemView.findViewById(R.id.list_image);
             title =  itemView.findViewById(R.id.list_image_title);
             layout =  itemView.findViewById(R.id.list_image_layout);
+            background = itemView.findViewById(R.id.list_background);
         }
     }
 
@@ -132,13 +168,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         ImageView image;
         TextView title;
         CardView layout;
+        RelativeLayout background;
 
         public GridViewHolder(View itemView){
             super(itemView);
             image =  itemView.findViewById(R.id.grid_image);
             title =  itemView.findViewById(R.id.grid_image_title);
             layout =  itemView.findViewById(R.id.grid_image_layout);
+            background = itemView.findViewById(R.id.grid_background);
         }
 
     }
+
+    public abstract void renderMenus();
+    public abstract void renderData();
 }
