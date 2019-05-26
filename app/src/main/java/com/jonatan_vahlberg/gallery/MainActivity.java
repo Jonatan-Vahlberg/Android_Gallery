@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        recyclerView.getAdapter().notifyDataSetChanged();
         //readInFileNames();
         //adapter.notifyDataSetChanged();
     }
@@ -188,11 +189,8 @@ public class MainActivity extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Singleton.shared.deleteItems();
-                recyclerView.getAdapter().notifyDataSetChanged();
-                Singleton.shared.toggleDeletionMode(false);
-                renderMenus();
-            }
+                Singleton.shared.showDeleteDialogue(MainActivity.this);
+                }
         });
         returnBtn = deleteMenu.findViewById(R.id.menu_delete_return_btn);
         returnBtn.setOnClickListener(new View.OnClickListener() {
@@ -203,6 +201,10 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
         });
+    }
+
+    public void notifyDatasetChanged(){
+        recyclerView.getAdapter().notifyDataSetChanged();
     }
 
     private void getImage() {
@@ -353,4 +355,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 }

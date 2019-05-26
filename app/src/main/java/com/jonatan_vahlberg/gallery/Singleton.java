@@ -1,10 +1,15 @@
 package com.jonatan_vahlberg.gallery;
 
 import android.app.Application;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.bumptech.glide.Glide;
 
@@ -14,14 +19,13 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class Singleton {
-
-
+    private boolean willDelete;
+    Dialog deleteDialogue;
     final public static  Singleton shared = new Singleton();
     private ArrayList<ImageObject> list = new ArrayList<>();
     private ArrayList<Long> itemsToBeDeleted = new ArrayList<>();
     public boolean DELETION_MODE = false;
     private  Singleton(){
-        //list = intiialFill();
 
     }
 
@@ -30,6 +34,49 @@ public class Singleton {
         if (!DELETION_MODE){
             itemsToBeDeleted = new ArrayList<>();
         }
+    }
+
+    public void showDeleteDialogue(final Context context){
+        deleteDialogue = new Dialog(context);
+        deleteDialogue.setContentView(R.layout.delete_popup);
+        Button yesBtn,noBtn;
+
+        yesBtn = deleteDialogue.findViewById(R.id.delete_alert_yes);
+        yesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteItems();
+                deleteDialogue.dismiss();
+                willDelete = true;
+                toggleDeletionMode(false);
+                if(context instanceof MainActivity){
+                    ((MainActivity) context).renderMenus();
+                    ((MainActivity) context).notifyDatasetChanged();
+
+                }
+                else if(context instanceof ImageDetailActivity){
+                    if(list.size() < 1){
+                        ((ImageDetailActivity) context).finish();
+                        return;
+                    }
+                    int index = ((ImageDetailActivity) context).list_index;
+                    if(index > list.size()-1){
+                        ((ImageDetailActivity) context).list_index = list.size() -1;
+                    }
+                    ((ImageDetailActivity) context).load();
+                }
+            }
+        });
+        noBtn = deleteDialogue.findViewById(R.id.delete_alert_no);
+        noBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteDialogue.dismiss();
+                if(context instanceof  ImageDetailActivity) toggleDeletionMode(false);
+            }
+        });
+        deleteDialogue.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        deleteDialogue.show();
     }
 
     public void deleteItems(){
