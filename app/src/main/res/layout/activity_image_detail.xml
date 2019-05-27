@@ -7,7 +7,7 @@
     tools:context=".ImageDetailActivity"
     android:orientation="vertical">
 
-    <include layout="@layout/gallery_main_menu"
+    <include layout="@layout/gallery_detail_menu"
         android:id="@+id/detail_top_bar"/>
     <ImageView
         android:id="@+id/detail_image"
@@ -21,7 +21,7 @@
         android:id="@+id/detail_title"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.15"
+        android:layout_weight="0.25"
         android:textSize="20sp"
         android:text="Hello"
         android:padding="20dp"

@@ -12,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,8 +23,9 @@ public class ImageDetailActivity extends AppCompatActivity {
     private ImageView detailImage;
     private TextView detail_title;
     private View detail_topBar;
+    private ImageButton detailDelete;
     private TextView topBarText;
-    private int list_index;
+    public int list_index;
 
     private float x1, x2, xCurrent;
     private final  int SWIPE_MIN = 150;
@@ -35,22 +38,29 @@ public class ImageDetailActivity extends AppCompatActivity {
         detailImage = findViewById(R.id.detail_image);
         detail_title = findViewById(R.id.detail_title);
         detail_topBar = findViewById(R.id.detail_top_bar);
-        topBarText = detail_topBar.findViewById(R.id.menu_text_field);
+        topBarText = detail_topBar.findViewById(R.id.detail_menu_title);
+        detailDelete = detail_topBar.findViewById(R.id.detail_menu_delete);
 
-        if (getIntent().hasExtra(Globals.INDEX_INTENT)) {
-            list_index = getIntent().getIntExtra(Globals.INDEX_INTENT, 0);
+        if (getIntent().hasExtra(Singleton.shared.INDEX_INTENT)) {
+            list_index = getIntent().getIntExtra(Singleton.shared.INDEX_INTENT, 0);
             load();
         }
 
-
+        detailDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Singleton.shared.addToDeleteList(Singleton.shared.getFromList(list_index).getId());
+                Singleton.shared.showDeleteDialogue(ImageDetailActivity.this);
+            }
+        });
 
     }
 
-    private void load(){
+    public void load(){
         topBarText.setText((list_index+1)+" / "+Singleton.shared.getListSize());
         ImageObject imageObject = Singleton.shared.getFromList(list_index);
         Glide.with(this)
-                .load(Globals.IMAGE_DIRECTORY_PATH + "/" + imageObject.getTitle())
+                .load(Singleton.shared.IMAGE_DIRECTORY_PATH + "/" + imageObject.getTitle())
                 .fitCenter()
                 .into(detailImage);
         detail_title.setText(imageObject.getTitle());

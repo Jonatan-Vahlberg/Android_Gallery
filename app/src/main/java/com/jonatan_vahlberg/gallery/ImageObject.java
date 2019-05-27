@@ -1,12 +1,9 @@
 package com.jonatan_vahlberg.gallery;
 
-import android.graphics.Bitmap;
 
 public class ImageObject {
 
     private String title;
-    private String dateCreated;
-    private Bitmap imageScaledDown;
     private long id;
 
 
@@ -18,22 +15,6 @@ public class ImageObject {
         this.title = title;
     }
 
-//    public String getDateCreated() {
-//        return dateCreated;
-//    }
-//
-//    public void setDateCreated(String dateCreated) {
-//        this.dateCreated = dateCreated;
-//    }
-//
-//    public Bitmap getImageScaledDown() {
-//        return imageScaledDown;
-//    }
-//
-//    public void setImageScaledDown(Bitmap imageScaledDown) {
-//        this.imageScaledDown = imageScaledDown;
-//    }
-
     public long getId() {
         return id;
     }
@@ -42,10 +23,6 @@ public class ImageObject {
         this.id = id;
     }
 
-    public ImageObject(String title, String dateCreated){
-        this.title = title;
-        this.dateCreated = dateCreated;
-    }
     public ImageObject(String title,long id){
         this.title = title;
         this.id = id;
