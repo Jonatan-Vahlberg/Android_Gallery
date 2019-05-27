@@ -41,8 +41,8 @@ public class ImageDetailActivity extends AppCompatActivity {
         topBarText = detail_topBar.findViewById(R.id.detail_menu_title);
         detailDelete = detail_topBar.findViewById(R.id.detail_menu_delete);
 
-        if (getIntent().hasExtra(Globals.INDEX_INTENT)) {
-            list_index = getIntent().getIntExtra(Globals.INDEX_INTENT, 0);
+        if (getIntent().hasExtra(Singleton.shared.INDEX_INTENT)) {
+            list_index = getIntent().getIntExtra(Singleton.shared.INDEX_INTENT, 0);
             load();
         }
 
@@ -60,7 +60,7 @@ public class ImageDetailActivity extends AppCompatActivity {
         topBarText.setText((list_index+1)+" / "+Singleton.shared.getListSize());
         ImageObject imageObject = Singleton.shared.getFromList(list_index);
         Glide.with(this)
-                .load(Globals.IMAGE_DIRECTORY_PATH + "/" + imageObject.getTitle())
+                .load(Singleton.shared.IMAGE_DIRECTORY_PATH + "/" + imageObject.getTitle())
                 .fitCenter()
                 .into(detailImage);
         detail_title.setText(imageObject.getTitle());

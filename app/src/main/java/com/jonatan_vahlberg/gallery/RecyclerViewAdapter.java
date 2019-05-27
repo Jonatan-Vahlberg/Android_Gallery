@@ -3,9 +3,6 @@ package com.jonatan_vahlberg.gallery;
 import android.content.Context;
 import android.content.Intent;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -14,15 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
-
-import java.io.File;
-import java.util.ArrayList;
 
 public abstract class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Runnable {
 
@@ -61,7 +54,7 @@ public abstract class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         if(viewHolder instanceof GridViewHolder){
 
             Glide.with(mContext)
-                    .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
+                    .load(Singleton.shared.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
                     .fitCenter()
                     .override(200,200)
                     .into(((GridViewHolder) viewHolder).image);
@@ -72,7 +65,7 @@ public abstract class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         else if(viewHolder instanceof  ListViewHolder){
             ((ListViewHolder) viewHolder).title.setText((imageObject.getTitle()));
             Glide.with(mContext)
-                    .load(Globals.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
+                    .load(Singleton.shared.IMAGE_DIRECTORY_PATH+"/"+imageObject.getTitle())
                     .fitCenter()
                     .override(200,200)
                     .into(((ListViewHolder) viewHolder).image);
@@ -99,7 +92,7 @@ public abstract class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 }
                 else{
                     Intent intent = new Intent(v.getContext(),ImageDetailActivity.class);
-                    intent.putExtra(Globals.INDEX_INTENT,INDEX);
+                    intent.putExtra(Singleton.shared.INDEX_INTENT,INDEX);
                     mContext.startActivity(intent);
                 }
             }

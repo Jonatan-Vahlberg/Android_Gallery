@@ -3,15 +3,10 @@ package com.jonatan_vahlberg.gallery;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapRegionDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
@@ -26,27 +21,18 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String GALLERY_SUBFOLDER = "/Gallery";
     private static final String STATE_GRIDMODE = "gridMode";
     private static final String STATE_LIST = "listState";
+
     private static final int CAPTURE_IMAGE_REQUEST = 1;
     private static final int IMAGE_FROM_FOLDER_REQUSET = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
@@ -80,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //runs at least once to create folder if folder is deleted runs again and creates it
     private void createImageDirectoryIfNeeded() {
-        String galleryFolder = Globals.IMAGE_DIRECTORY_PATH;
+        String galleryFolder = Singleton.shared.IMAGE_DIRECTORY_PATH;
         File f = new File(galleryFolder);
         if(!f.exists()){
             if(!f.mkdir()){
@@ -89,22 +76,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void readInFileNames() {
-//        mList = new ArrayList<>();
-//        File directory = new File(Globals.IMAGE_DIRECTORY_PATH);
-//        FilenameFilter fileFilter = (new FilenameFilter() {
-//            @Override
-//            public boolean accept(File dir, String name) {
-//                return name.toLowerCase().endsWith(".jpg");
-//            }
-//        });
-//        File[] files = directory.listFiles(fileFilter);
-//        for(File file : files){
-//            Log.d("FileSRead", "readInFileNames: "+file.getName());
-//            mList.add(new ImageObject(file.getName(),""));
-//        }
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,13 +84,9 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null){
             recoverSavedInstances(savedInstanceState);
         }
-        else{
-            readInFileNames();
-        }
         if(Build.VERSION.SDK_INT >= 23){
             requestPermissions(new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},CAMERA_PERMISSION_CODE);
         }
-        //Singleton.shared.load(this);
 
         setupLayout();
 
@@ -130,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         recyclerView.getAdapter().notifyDataSetChanged();
-        //readInFileNames();
-        //adapter.notifyDataSetChanged();
     }
 
     private void recoverSavedInstances(Bundle savedInstance){
@@ -277,7 +242,6 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_GRIDMODE,gridMode);
         outState.putParcelable(STATE_LIST,recyclerView.getLayoutManager().onSaveInstanceState());
-        //outState.putSerializable(STATE_LIST,mList);
     }
 
     private void captureImage() {
@@ -329,11 +293,11 @@ public class MainActivity extends AppCompatActivity {
         if( resultCode == RESULT_OK){
 
             if(requestCode == CAPTURE_IMAGE_REQUEST){
-                Singleton.shared.addToList(new ImageObject(currentFileName,""));
+                Singleton.shared.addToList(new ImageObject(currentFileName, UUID.randomUUID().getMostSignificantBits()));
             }
             else if(requestCode == IMAGE_FROM_FOLDER_REQUSET){
                 File intputFile = new File(data.getData().toString());
-                File outputFile = new File(Globals.IMAGE_DIRECTORY_PATH+"/"+intputFile.getName()+".jpg");
+                File outputFile = new File(Singleton.shared.IMAGE_DIRECTORY_PATH+"/"+intputFile.getName()+".jpg");
                 try{
                     InputStream inputStream = getContentResolver()
                             .openInputStream(data.getData());
@@ -346,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 }catch (Exception e){
                 }
                 if(!(outputFile == null)){
-                    Singleton.shared.addToList(new ImageObject(currentFileName,""));
+                    Singleton.shared.addToList(new ImageObject(currentFileName,UUID.randomUUID().getMostSignificantBits()));
 
                 }
             }
